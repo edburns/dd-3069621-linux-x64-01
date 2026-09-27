@@ -7,20 +7,20 @@ param(
 Set-StrictMode -Version Latest
 
 function Get-Fibonacci {
-    [OutputType([long])]
+    [OutputType([bigint])]
     param(
         [ValidateRange(0, [int]::MaxValue)]
         [int]$N
     )
 
     if ($N -lt 2) {
-        return [long]$N
+        return [bigint]$N
     }
 
-    [long]$previous = 0
-    [long]$current = 1
+    [bigint]$previous = 0
+    [bigint]$current = 1
     for ($index = 2; $index -le $N; $index++) {
-        [long]$next = $previous + $current
+        [bigint]$next = $previous + $current
         $previous = $current
         $current = $next
     }
