@@ -4,8 +4,6 @@ param(
     [int]$N
 )
 
-Set-StrictMode -Version Latest
-
 function Get-Fibonacci {
     [OutputType([bigint])]
     param(
