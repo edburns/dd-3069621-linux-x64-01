@@ -23,6 +23,14 @@ Describe 'Get-Fibonacci' {
         $output | Should -HaveCount 1
         $output[0] | Should -Be 8
     }
+
+    It 'returns the arbitrary-precision result for N=100' {
+        $output = @(Get-Fibonacci -N 100)
+
+        $output | Should -HaveCount 1
+        $output[0] | Should -BeOfType ([bigint])
+        $output[0] | Should -Be ([bigint]::Parse('354224848179261915075'))
+    }
 }
 
 Describe 'math-tool CLI' {
