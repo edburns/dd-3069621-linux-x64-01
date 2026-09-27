@@ -33,13 +33,44 @@ Describe 'Get-Fibonacci' {
     }
 }
 
+Describe 'Get-Factorial' {
+    BeforeAll {
+        . (Join-Path $PSScriptRoot 'math-tool.ps1')
+    }
+
+    It 'returns only one for N=0' {
+        $output = @(Get-Factorial -N 0)
+
+        $output | Should -HaveCount 1
+        $output[0] | Should -BeOfType ([bigint])
+        $output[0] | Should -Be 1
+    }
+
+    It 'returns only one for N=1' {
+        $output = @(Get-Factorial -N 1)
+
+        $output | Should -HaveCount 1
+        $output[0] | Should -BeOfType ([bigint])
+        $output[0] | Should -Be 1
+    }
+
+    It 'returns only 720 for N=6' {
+        $output = @(Get-Factorial -N 6)
+
+        $output | Should -HaveCount 1
+        $output[0] | Should -BeOfType ([bigint])
+        $output[0] | Should -Be 720
+    }
+}
+
 Describe 'math-tool CLI' {
     BeforeAll {
         $scriptPath = Join-Path $PSScriptRoot 'math-tool.ps1'
 
         function Invoke-MathTool {
             param(
-                [int]$N
+                [int]$N,
+                [string]$Operation
             )
 
             $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
@@ -54,6 +85,10 @@ Describe 'math-tool CLI' {
             [void]$startInfo.ArgumentList.Add($scriptPath)
             [void]$startInfo.ArgumentList.Add('-N')
             [void]$startInfo.ArgumentList.Add($N.ToString())
+            if ($PSBoundParameters.ContainsKey('Operation')) {
+                [void]$startInfo.ArgumentList.Add('-Operation')
+                [void]$startInfo.ArgumentList.Add($Operation)
+            }
 
             $process = [System.Diagnostics.Process]::new()
             $process.StartInfo = $startInfo
@@ -68,6 +103,17 @@ Describe 'math-tool CLI' {
                 StdErr   = $stderr
             }
         }
+    }
+
+    It 'dispatches each operation with an operation-specific result label' -ForEach @(
+        @{ Operation = 'fibonacci'; Expected = 2; Label = 'Fibonacci' }
+        @{ Operation = 'factorial'; Expected = 6; Label = 'Factorial' }
+    ) {
+        $result = Invoke-MathTool -N 3 -Operation $Operation
+
+        $result.ExitCode | Should -Be 0
+        $result.StdErr | Should -BeNullOrEmpty
+        $result.StdOut | Should -Be "$Label(3) = $Expected$([Environment]::NewLine)"
     }
 
     It 'writes exactly the expected result for N=<N>' -ForEach @(

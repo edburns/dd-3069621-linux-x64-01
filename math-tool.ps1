@@ -1,7 +1,10 @@
 [CmdletBinding()]
 param(
     [ValidateRange(0, [int]::MaxValue)]
-    [int]$N
+    [int]$N,
+
+    [ValidateSet('fibonacci', 'factorial')]
+    [string]$Operation = 'fibonacci'
 )
 
 function Get-Fibonacci {
@@ -26,7 +29,30 @@ function Get-Fibonacci {
     return $current
 }
 
+function Get-Factorial {
+    [OutputType([bigint])]
+    param(
+        [ValidateRange(0, [int]::MaxValue)]
+        [int]$N
+    )
+
+    [bigint]$result = 1
+    for ($index = 2; $index -le $N; $index++) {
+        $result *= $index
+    }
+
+    return $result
+}
+
 if ($MyInvocation.InvocationName -ne '.') {
-    $value = Get-Fibonacci -N $N
-    Write-Output "Fibonacci($N) = $value"
+    switch ($Operation) {
+        'fibonacci' {
+            $value = Get-Fibonacci -N $N
+            Write-Output "Fibonacci($N) = $value"
+        }
+        'factorial' {
+            $value = Get-Factorial -N $N
+            Write-Output "Factorial($N) = $value"
+        }
+    }
 }
